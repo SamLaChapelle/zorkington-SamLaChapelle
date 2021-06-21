@@ -14,16 +14,17 @@ function ask(questionText) {
 }
 
 /* Rooms Class */
-
+// Each room instance has three parameters (name, inventory & a description), Also inside the class there are 8 methods (7 out of 8 methods are player commands)
 class Rooms {
   constructor(name, inventory = [], desc) {
     this.name = name;
     this.inventory = inventory;
     this.desc = desc;
   }
+  //prints the rooms name and description when called
   describe() {
     return `\n${this.name}\n${this.desc}`;
-  }
+  }// checks if an item exists in a rooms inventory, if an item is takeable or not & anything else it will add the item to the player inventory, reassign an items takeabitlity to false and return the items description
   take(item) {
     if (roomLookUp[currentRoom].inventory[item] === undefined) {
       return "This item does not exist...\n>";
@@ -34,7 +35,7 @@ class Rooms {
       roomLookUp[currentRoom].inventory[item].takeable = false;
       return roomLookUp[currentRoom].inventory[item].desc;
     }
-  }
+  }// will check if the item inside the players inventory is not undefined and will delete it from there, reassign the takeability of the item to true and print a message telling the player they dropped that item
   drop(item) {
     if (playerInv[item] != undefined) {
       delete playerInv[item];
@@ -42,7 +43,7 @@ class Rooms {
       return "Successfully dropped " + item + "...";
     }
     return "Item " + item + " is not in your inventory";
-  }
+  } // checks against, specified item names and prints specified descriptions for the different cases
   use(item) {
     if (roomLookUp[currentRoom].inventory[item].name === "first key") {
       delete playerInv[item];
@@ -60,20 +61,20 @@ class Rooms {
     } else if (roomLookUp[currentRoom].inventory[item].name === "carKey") {
       return "As Post Malone said..'Congratulations!!!'. You've beaten my Escape The Room!!";
     }
-  }
+  }// calls the state machine function to input players move request and moves them to the specified room if possible
   moveTo(roomName) {
     playerLoc(roomName);
-  }
+  }// returns the items description the player chose to read
   read(item) {
     return roomLookUp[currentRoom].inventory[item].desc;
-  }
+  }//checks the players "password" input and either prints the next leading message with clues or says they need to try again
   type(password) {
     if (password === "garrison") {
       return "You hear a door unlock from the other room...maybe it leads to the Kitchen...\n>";
     } else {
       return "Password Invalid...please try again...\n>";
     }
-  }
+  }//checks the players entered code and either prints the next leading message with clues or says they need to try again
   enter(code) {
     if (code === "5183") {
       return "The keypad glows green and unlocks the Shed...\n>";
@@ -85,6 +86,7 @@ class Rooms {
 
 /* Seven Room Instances */
 
+//inside each room instances inventory there are three keys labeled name, desc(description) & if it takeable or not defining each item
 let Lounge = new Rooms(
   "Lounge",
   {
@@ -94,7 +96,7 @@ let Lounge = new Rooms(
       takeable: true,
     },
   },
-  "A dim lamp fills the room allowing you to see a few scattered chairs, a round table in the center of the room and a door across the room. On this table you see a dark brown colored whiskey bottle next to a cigarette put out in an ash tray. Laying on one of the chairs is a candle stick and a match box. What are you going to do next?\n>"
+  "A dim lamp fills the room allowing you to see a few scattered chairs, a round table in the center of the room and a door across the room. On this table you see a key...What are you going to do next?\n>"
 );
 
 let Billiard = new Rooms(
@@ -192,6 +194,7 @@ let roomLookUp = {
 
 /* Player Inventory */
 
+//Player inventory function that assigns a variable the players inventory and through a loop it adds the newly added item to the player inventory and prints it out
 function getPlayerInv() {
   let responseString = "Current Inventory:\n";
   for (let item in playerInv) {
@@ -215,7 +218,7 @@ let rooms = {
   Backyard: ["Kitchen", "Shed"],
   Shed: ["Backyard"],
 };
-
+//state machine function that changes the players location to the specified room if possible
 function playerLoc(nextLoc) {
   if (rooms[currentRoom].includes(nextLoc)) {
     currentRoom = nextLoc;
@@ -229,7 +232,7 @@ playerLoc();
 /* Text Adventure Async Function */
 
 textAdventure();
-
+//main game function that starts with a welcome message explaining the game and waits for the player to type begin to begin, if anything else it loops over a message saying that input is invalid
 async function textAdventure() {
   const welcomeMessage = `Greetings Stranger! You will be playing an Escape the Room Text Adventure: 1940's (War Year's Themed). You will be able to use commands like [take, drop, use, read, type, enter, and move to (move to 'room name ex. Billiard')], You can also type "Inv" to check your inventory.\nWhen you are ready type "begin" to be captured and locked inside "The Garrison" as a 1940's gangster who fixes horse races and gambles their life against all odds to become a success in the harsh society of Birmingham, England...\n>`;
 
@@ -244,8 +247,9 @@ async function textAdventure() {
       );
     }
   }
-
+//prints the first rooms name and description, awaiting for the players next input
   let playerComm = await ask(roomLookUp[currentRoom].describe());
+  //while loop that will check the players input for any commands calling their matching method in the Rooms class and run the target through its parameter. If no response is valid it displays a message saying "I do not understand that, please repeat"
   while (true) {
     let response = playerComm;
     if (response.slice(0, 4).toLowerCase() === "take") {
@@ -271,3 +275,5 @@ async function textAdventure() {
     }
   }
 }
+//I understand this is not complete, I hit a big road block over the weekend and broke through and made major progress Sunday. Will revisit to complete and resubmit
+//Need to add: Sanitized user input for room names and items, lock rooms so they are unavailable, check player inventory for certain items when using the "use" command/method...(more)
